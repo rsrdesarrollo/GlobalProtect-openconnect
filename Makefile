@@ -13,6 +13,12 @@ PKG = $(PKG_NAME)-$(VERSION)
 SERIES ?= $(shell lsb_release -cs)
 PUBLISH ?= 0
 
+# Indicate if it is a Debian packaging
+DEB_PACKAGING ?= 0
+INCLUDE_SYSTEMD ?= $(shell [ -d /run/systemd/system ] && echo 1 || echo 0)
+# Enable the systemd service after installation
+ENABLE_SERVICE ?= 1
+
 export DEBEMAIL = k3vinyue@gmail.com
 export DEBFULLNAME = Kevin Yue
 
@@ -116,8 +122,33 @@ install:
 	install -Dm644 packaging/files/usr/share/icons/hicolor/256x256@2/apps/gpgui.png $(DESTDIR)/usr/share/icons/hicolor/256x256@2/apps/gpgui.png
 	install -Dm644 packaging/files/usr/share/polkit-1/actions/com.yuezk.gpgui.policy $(DESTDIR)/usr/share/polkit-1/actions/com.yuezk.gpgui.policy
 
+	# Install the systemd service
+	if [ $(INCLUDE_SYSTEMD) -eq 1 ]; then \
+		if [ $(DEB_PACKAGING) -eq 1 ]; then \
+			install -Dm644 packaging/files/usr/lib/systemd/system/gp-suspend.service $(DESTDIR)/lib/systemd/system/gp-suspend.service; \
+		else \
+			install -Dm644 packaging/files/usr/lib/systemd/system/gp-suspend.service $(DESTDIR)/usr/lib/systemd/system/gp-suspend.service; \
+		fi; \
+		if [ $(ENABLE_SERVICE) -eq 1 ]; then \
+			systemctl --system daemon-reload \
+			systemctl enable gp-suspend.service || true; \
+		fi \
+	else \
+		echo "Skipping systemd service installation"; \
+	fi
+
+	@echo "Installation complete."
+
 uninstall:
 	@echo "Uninstalling $(PKG_NAME)..."
+
+	# Disable the systemd service
+	if [ -d /run/systemd/system ]; then \
+		systemctl disable gp-suspend.service >/dev/null || true; \
+	fi
+
+	rm -f $(DESTDIR)/lib/systemd/system/gp-suspend.service
+	rm -f $(DESTDIR)/usr/lib/systemd/system/gp-suspend.service
 
 	rm -f $(DESTDIR)/usr/bin/gpclient
 	rm -f $(DESTDIR)/usr/bin/gpauth
@@ -223,6 +254,7 @@ init-pkgbuild: clean-pkgbuild tarball
 
 	cp .build/tarball/${PKG}.tar.gz .build/pkgbuild
 	cp packaging/pkgbuild/PKGBUILD.in .build/pkgbuild/PKGBUILD
+	cp packaging/pkgbuild/gp.install .build/pkgbuild
 
 	sed -i "s/@PKG_NAME@/$(PKG_NAME)/g" .build/pkgbuild/PKGBUILD
 	sed -i "s/@VERSION@/$(VERSION)/g" .build/pkgbuild/PKGBUILD
@@ -244,7 +276,10 @@ binary: clean-binary tarball
 	mkdir -p .build/binary/$(PKG_NAME)_$(VERSION)/artifacts
 
 	make -C .build/binary/${PKG} build OFFLINE=$(OFFLINE) BUILD_FE=0 INCLUDE_GUI=$(INCLUDE_GUI)
-	make -C .build/binary/${PKG} install DESTDIR=$(PWD)/.build/binary/$(PKG_NAME)_$(VERSION)/artifacts
+	make -C .build/binary/${PKG} install \
+		DESTDIR=$(PWD)/.build/binary/$(PKG_NAME)_$(VERSION)/artifacts \
+		INCLUDE_SYSTEMD=1 \
+		ENABLE_SERVICE=0
 
 	cp packaging/binary/Makefile.in .build/binary/$(PKG_NAME)_$(VERSION)/Makefile
 

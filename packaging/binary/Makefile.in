@@ -1,3 +1,7 @@
+INCLUDE_SYSTEMD ?= $(shell [ -d /run/systemd/system ] && echo 1 || echo 0)
+# Enable the systemd service after installation
+ENABLE_SERVICE ?= 1
+
 install:
 	@echo "===> Installing..."
 
@@ -5,7 +9,10 @@ install:
 	install -Dm755 artifacts/usr/bin/gpservice $(DESTDIR)/usr/bin/gpservice
 	install -Dm755 artifacts/usr/bin/gpauth $(DESTDIR)/usr/bin/gpauth
 	install -Dm755 artifacts/usr/bin/gpgui-helper $(DESTDIR)/usr/bin/gpgui-helper
-	install -Dm755 artifacts/usr/bin/gpgui $(DESTDIR)/usr/bin/gpgui
+
+	if [ -f artifacts/usr/bin/gpgui ]; then \
+		install -Dm755 artifacts/usr/bin/gpgui $(DESTDIR)/usr/bin/gpgui; \
+	fi
 
 	install -Dm644 artifacts/usr/share/applications/gpgui.desktop $(DESTDIR)/usr/share/applications/gpgui.desktop
 	install -Dm644 artifacts/usr/share/icons/hicolor/scalable/apps/gpgui.svg $(DESTDIR)/usr/share/icons/hicolor/scalable/apps/gpgui.svg
@@ -14,8 +21,27 @@ install:
 	install -Dm644 artifacts/usr/share/icons/hicolor/256x256@2/apps/gpgui.png $(DESTDIR)/usr/share/icons/hicolor/256x256@2/apps/gpgui.png
 	install -Dm644 artifacts/usr/share/polkit-1/actions/com.yuezk.gpgui.policy $(DESTDIR)/usr/share/polkit-1/actions/com.yuezk.gpgui.policy
 
+	# Install the service
+	if [ $(INCLUDE_SYSTEMD) -eq 1 ]; then \
+		install -Dm644 artifacts/usr/lib/systemd/system/gpgui.service $(DESTDIR)/usr/lib/systemd/system/gpgui.service; \
+		if [ $(ENABLE_SERVICE) -eq 1 ]; then \
+			systemctl --system daemon-reload; \
+			systemctl enable gpgui.service; \
+		fi; \
+	fi
+
+	@echo "===> Done."
+
 uninstall:
 	@echo "===> Uninstalling from $(DESTDIR)..."
+
+	# Disable the systemd service
+	if [ -d /run/systemd/system ]; then \
+		systemctl disable gp-suspend.service >/dev/null || true; \
+	fi
+
+	rm -f $(DESTDIR)/lib/systemd/system/gp-suspend.service
+	rm -f $(DESTDIR)/usr/lib/systemd/system/gp-suspend.service
 
 	rm -f $(DESTDIR)/usr/bin/gpclient
 	rm -f $(DESTDIR)/usr/bin/gpservice
@@ -29,3 +55,5 @@ uninstall:
 	rm -f $(DESTDIR)/usr/share/icons/hicolor/128x128/apps/gpgui.png
 	rm -f $(DESTDIR)/usr/share/icons/hicolor/256x256@2/apps/gpgui.png
 	rm -f $(DESTDIR)/usr/share/polkit-1/actions/com.yuezk.gpgui.policy
+
+	@echo "===> Done."

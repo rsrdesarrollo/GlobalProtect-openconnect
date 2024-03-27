@@ -14,6 +14,8 @@ optdepends=('wmctrl: for window management')
 
 provides=('globalprotect-openconnect' 'gpclient' 'gpservice' 'gpauth' 'gpgui')
 
+install=gp.install
+
 source=("${_pkgname}-${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
@@ -31,5 +33,5 @@ build() {
 package() {
   cd "$pkgname-$pkgver"
 
-  make install DESTDIR="$pkgdir"
+  make install DESTDIR="$pkgdir" INCLUDE_SYSTEMD=1 ENABLE_SERVICE=0
 }

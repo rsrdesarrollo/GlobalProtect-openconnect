@@ -22,6 +22,7 @@ BuildRequires:  perl
 BuildRequires:  (webkit2gtk4.0-devel or webkit2gtk3-soup2-devel)
 BuildRequires:  (libappindicator-gtk3-devel or libappindicator3-1)
 BuildRequires:  (librsvg2-devel or librsvg-devel)
+BuildRequires:  systemd-rpm-macros
 
 Requires:       openconnect >= 8.20, (libayatana-appindicator or libappindicator-gtk3)
 Conflicts:      globalprotect-openconnect-snapshot
@@ -34,8 +35,34 @@ A GUI for GlobalProtect VPN, based on OpenConnect, supports the SSO authenticati
 %prep
 %setup
 
+%pre
+%if 0%{?suse_version}
+  %service_add_pre gp-suspend.service
+%endif
+
+%post
+%if 0%{?suse_version}
+  %service_add_post gp-suspend.service
+%else
+  %systemd_post gp-suspend.service
+%endif
+
+%preun
+%if 0%{?suse_version}
+  %service_del_preun gp-suspend.service
+%else
+  %systemd_preun gp-suspend.service
+%endif
+
 %postun
+# Clean up the gpgui downloaded at runtime
 rm -f %{_bindir}/gpgui
+
+%if 0%{?suse_version}
+  %service_del_postun_without_restart gp-suspend.service
+%else
+  %systemd_postun gp-suspend.service
+%endif
 
 %build
 # The injected RUSTFLAGS could fail the build
@@ -43,7 +70,7 @@ unset RUSTFLAGS
 make build OFFLINE=@OFFLINE@ BUILD_FE=0
 
 %install
-%make_install
+%make_install INCLUDE_SYSTEMD=1 ENABLE_SERVICE=0
 
 %files
 %defattr(-,root,root)
@@ -54,6 +81,7 @@ make build OFFLINE=@OFFLINE@ BUILD_FE=0
 %{_datadir}/icons/hicolor/256x256@2/apps/gpgui.png
 %{_datadir}/icons/hicolor/scalable/apps/gpgui.svg
 %{_datadir}/polkit-1/actions/com.yuezk.gpgui.policy
+%{_unitdir}/gp-suspend.service
 
 %dir %{_datadir}/icons/hicolor
 %dir %{_datadir}/icons/hicolor/32x32

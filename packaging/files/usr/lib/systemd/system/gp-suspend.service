@@ -1,0 +1,10 @@
+[Unit]
+Description=Disconnect from the VPN when suspending
+Before=sleep.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/gpclient disconnect
+
+[Install]
+WantedBy=sleep.target

@@ -62,20 +62,39 @@ jobs:
     strategy:
       matrix:
         os: ${{fromJson(needs.setup-matrix.outputs.matrix)}}
+        package: [deb, rpm, pkg, binary]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Prepare workspace
-      run: rm -rf build-gp && mkdir build-gp
+      run: |
+        rm -rf build-gp-${{ matrix.package }}
+        mkdir -p build-gp-${{ matrix.package }}
     - name: Download tarball
       uses: actions/download-artifact@v3
       with:
         name: artifact-source
-        path: build-gp
+        path: build-gp-${{ matrix.package }}
     - name: Docker Login
       run: echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-    - name: Build gp in Docker
+    - name: Build ${{ matrix.package }} package in Docker
       run: |
-        docker run --rm -v $(pwd)/build-gp:/gp yuezk/gpdev:gp-builder
+        docker run --rm \
+          -v $(pwd)/build-gp-${{ matrix.package }}:/${{ matrix.package }} \
+          yuezk/gpdev:${{ matrix.package }}-builder
+    - name: Install ${{ matrix.package }} package in Docker
+      run: |
+        docker run --rm \
+          -e GPGUI_INSTALLED=0 \
+          -v $(pwd)/build-gp-${{ matrix.package }}:/${{ matrix.package }} \
+          yuezk/gpdev:${{ matrix.package }}-builder \
+          bash install.sh
+    - name: Upload ${{ matrix.package }} package
+      uses: actions/upload-artifact@v3
+      with:
+        name: artifact-gp-${{ matrix.os }}-${{ matrix.package }}
+        if-no-files-found: error
+        path: |
+          build-gp-${{ matrix.package }}/artifacts/*
 
   build-gpgui:
     needs:

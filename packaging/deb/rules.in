@@ -2,6 +2,12 @@
 
 export OFFLINE = @OFFLINE@
 export BUILD_FE = 0
+export DEB_PACKAGING = 1
+export INCLUDE_SYSTEMD = 1
+export ENABLE_SERVICE = 0
 
 %:
 	dh $@ --no-parallel
+
+override_dh_installsystemd:
+	dh_installsystemd gp-suspend.service --no-start
