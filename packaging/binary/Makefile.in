@@ -23,10 +23,10 @@ install:
 
 	# Install the service
 	if [ $(INCLUDE_SYSTEMD) -eq 1 ]; then \
-		install -Dm644 artifacts/usr/lib/systemd/system/gpgui.service $(DESTDIR)/usr/lib/systemd/system/gpgui.service; \
+		install -Dm644 artifacts/usr/lib/systemd/system/gp-suspend.service $(DESTDIR)/usr/lib/systemd/system/gp-suspend.service; \
 		if [ $(ENABLE_SERVICE) -eq 1 ]; then \
 			systemctl --system daemon-reload; \
-			systemctl enable gpgui.service; \
+			systemctl enable gp-suspend.service; \
 		fi; \
 	fi
 

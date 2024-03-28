@@ -1,6 +1,6 @@
 post_install() {
     systemctl --system daemon-reload
-    systemctl enable gpservice.service
+    systemctl enable gp-suspend.service
 }
 
 post_upgrade() {
@@ -8,5 +8,5 @@ post_upgrade() {
 }
 
 post_remove() {
-    systemctl disable gpservice.service
+    systemctl disable gp-suspend.service
 }
