@@ -226,7 +226,7 @@ init-rpm: clean-rpm
 	sed -i "s/@VERSION@/$(VERSION)/g" .build/rpm/globalprotect-openconnect.spec
 	sed -i "s/@REVISION@/$(REVISION)/g" .build/rpm/globalprotect-openconnect.spec
 	sed -i "s/@OFFLINE@/$(OFFLINE)/g" .build/rpm/globalprotect-openconnect.spec
-	sed -i "s/@DATE@/$(shell date "+%a %b %d %Y")/g" .build/rpm/globalprotect-openconnect.spec
+	sed -i "s/@DATE@/$(shell LC_ALL=en.US date "+%a %b %d %Y")/g" .build/rpm/globalprotect-openconnect.spec
 
 	sed -i "s/@VERSION@/$(VERSION)/g" .build/rpm/globalprotect-openconnect.changes
 	sed -i "s/@DATE@/$(shell LC_ALL=en.US date -u "+%a %b %e %T %Z %Y")/g" .build/rpm/globalprotect-openconnect.changes
