@@ -1,7 +1,7 @@
 # Maintainer: Keinv Yue <yuezk001@gmail.com>
 
 _pkgver="1.4.9"
-_commit="acf184134a2ff19e4a39528bd6a7fbbafa4cf017"
+_commit="8ca261055096c3a740b096a8d8106028bb82d76f"
 pkgname=globalprotect-openconnect-git
 pkgver=${_pkgver}
 pkgrel=1
@@ -11,6 +11,7 @@ url="https://github.com/yuezk/GlobalProtect-openconnect"
 license=('GPL3')
 backup=(
     etc/gpservice/gp.conf
+    etc/gpservice/hipreport.sh
 )
 install=gp.install
 depends=('openconnect>=8.0.0' qt5-base qt5-webengine qt5-websockets qt5-tools qtkeychain-qt5)

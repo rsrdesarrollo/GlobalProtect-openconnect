@@ -11,6 +11,7 @@ url="https://github.com/yuezk/GlobalProtect-openconnect"
 license=('GPL3')
 backup=(
     etc/gpservice/gp.conf
+    etc/gpservice/hipreport.sh
 )
 install=gp.install
 depends=('openconnect>=8.0.0' qt5-base qt5-webengine qt5-websockets qt5-tools qtkeychain-qt5)

@@ -89,6 +89,7 @@ A GlobalProtect VPN client (GUI) for Linux based on OpenConnect and built with Q
 %{_datadir}/icons/hicolor/scalable/apps/com.yuezk.qt.gpclient.svg
 %{_datadir}/metainfo/com.yuezk.qt.gpclient.metainfo.xml
 %config %{_sysconfdir}/gpservice/gp.conf
+%config %{_sysconfdir}/gpservice/hipreport.sh
 
 %dir %{_sysconfdir}/gpservice
 %dir %{_datadir}/icons/hicolor

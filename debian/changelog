@@ -1,5 +1,23 @@
 globalprotect-openconnect (1.4.9-1) unstable; urgency=medium
 
+
+
+ -- Kevin Yue <k3vinyue@gmail.com>  Thu, 18 Apr 2024 12:24:26 +0200
+
+globalprotect-openconnect (1.4.9-1) unstable; urgency=medium
+
+
+
+ -- Kevin Yue <k3vinyue@gmail.com>  Thu, 18 Apr 2024 12:24:07 +0200
+
+globalprotect-openconnect (1.4.9-1) unstable; urgency=medium
+
+
+
+ -- Kevin Yue <k3vinyue@gmail.com>  Thu, 18 Apr 2024 12:16:02 +0200
+
+globalprotect-openconnect (1.4.9-1) unstable; urgency=medium
+
   * Updated VERSION, Bumped 1.4.8 –> 1.4.9
   * fix: update cmake version
   * fix: correct the package name

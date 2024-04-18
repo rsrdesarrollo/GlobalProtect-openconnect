@@ -74,6 +74,7 @@ install(TARGETS gpservice DESTINATION bin)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/dbus/com.yuezk.qt.GPService.conf" DESTINATION share/dbus-1/system.d )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/dbus/com.yuezk.qt.GPService.service" DESTINATION share/dbus-1/system-services)
 install(FILES "gp.conf" DESTINATION /etc/gpservice)
+install(FILES "hipreport.sh" DESTINATION /etc/gpservice)
 
 if("$ENV{DEBIAN_PACKAGE}")
     # Install the systemd unit files to /lib/systemd/system for debian package
