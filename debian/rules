@@ -11,3 +11,6 @@ export DEBIAN_PACKAGE=1
 	dh $@
 override_dh_installsystemd:
 	dh_installsystemd gpservice.service
+override_dh_fixperms:
+        dh_fixperms
+        chmod 755 /etc/gpservice/hipreport.sh
